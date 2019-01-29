@@ -1,7 +1,7 @@
 # rinetd-bbr
 INIT
-One-key script
-Thanks to @phuslu for his one-key script
+# Only apply to 64Bit Linux with ipv4 network.
+One-key script based on @phuslu for his one-key script
 
 Usage：
 
