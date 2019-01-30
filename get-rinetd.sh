@@ -2,7 +2,6 @@
 # Usage:
 #   curl https://raw.githubusercontent.com/linhua55/lkl_study/master/get-rinetd.sh | bash
 
-# export RINET_URL="https://github.com/linhua55/lkl_study/releases/download/v1.2/rinetd_bbr_powered"
 export BBR_URL="https://raw.githubusercontent.com/tozy1203/rinetd-bbr/master/rinetd_bbr"
 export BBRP_URL="https://raw.githubusercontent.com/tozy1203/rinetd-bbr/master/rinetd_bbr_powered"
 export PCC_URL="https://raw.githubusercontent.com/tozy1203/rinetd-bbr/master/rinetd_pcc"
@@ -20,32 +19,32 @@ do
 	fi
 done
 
-echo -e "1. Clean up rinetd-bbr"
+read -p "1. Select bbr version[1BBR,2PCC,3BBRP]: " SELECT </dev/tty
+read -p "2. Input ports you want to speed up: " PORTS </dev/tty
+
+echo -e "3. Clean up rinetd-bbr"
 systemctl disable rinetd-bbr.service
 killall -9 rinetd-bbr
-rm -rf /usr/bin/rinetd-bbr  /etc/rinetd-bbr.conf /etc/systemd/system/rinetd-bbr.service
+rm -rf /usr/bin/rinetd-bbr /etc/systemd/system/rinetd-bbr.service
 
-read -p "Select bbr version[1BBR,2PCC,3BBRP]: " SELECT </dev/tty
-case $SELECT in
-1)
-RINET_URL = $BBR_URL
-;;
-2) 
-RINET_URL = $PCC_URL
-;;
-3) 
-RINET_URL = $BBRP_URL
-;;
-*)
-echo "NOT POSSIBLE VERSION."
-esac
-
-echo "2. Download rinetd-bbr from $RINET_URL"
+echo "4. Download rinetd-bbr from $RINET_URL"
 curl -L "${RINET_URL}" >/usr/bin/rinetd-bbr
 chmod +x /usr/bin/rinetd-bbr
 
-echo "3. Generate /etc/rinetd-bbr.conf"
-read -p "Input ports you want to speed up: " PORTS </dev/tty
+case $SELECT in
+1)
+RINET_URL=$BBR_URL
+;;
+2) 
+RINET_URL=$PCC_URL
+;;
+3) 
+RINET_URL=$BBRP_URL
+;;
+*)
+RINET_URL=$BBR_URL
+esac
+
 for d in $PORTS
 do          
 cat <<EOF >> /etc/rinetd-bbr.conf
@@ -55,7 +54,7 @@ done
 
 IFACE=$(ip -4 addr | awk '{if ($1 ~ /inet/ && $NF ~ /^[ve]/) {a=$NF}} END{print a}')
 
-echo "4. Generate /etc/systemd/system/rinetd-bbr.service"
+echo "5. Generate /etc/systemd/system/rinetd-bbr.service"
 cat <<EOF > /etc/systemd/system/rinetd-bbr.service
 [Unit]
 Description=rinetd with bbr
@@ -70,10 +69,10 @@ User=root
 WantedBy=multi-user.target
 EOF
 
-echo "4. Enable rinetd-bbr Service"
+echo "6. Enable rinetd-bbr Service"
 systemctl enable rinetd-bbr.service
 
-echo "5. Start rinetd-bbr Service"
+echo "7. Start rinetd-bbr Service"
 systemctl start rinetd-bbr.service
 
 if systemctl status rinetd-bbr >/dev/null; then
