@@ -27,10 +27,6 @@ systemctl disable rinetd-bbr.service
 killall -9 rinetd-bbr
 rm -rf /usr/bin/rinetd-bbr /etc/systemd/system/rinetd-bbr.service
 
-echo "4. Download rinetd-bbr from $RINET_URL"
-curl -L "${RINET_URL}" >/usr/bin/rinetd-bbr
-chmod +x /usr/bin/rinetd-bbr
-
 case $SELECT in
 1)
 RINET_URL=$BBR_URL
@@ -44,6 +40,10 @@ RINET_URL=$BBRP_URL
 *)
 RINET_URL=$BBR_URL
 esac
+
+echo "4. Download rinetd-bbr from $RINET_URL"
+curl -L "${RINET_URL}" >/usr/bin/rinetd-bbr
+chmod +x /usr/bin/rinetd-bbr
 
 for d in $PORTS
 do          
